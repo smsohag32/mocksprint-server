@@ -1,0 +1,112 @@
+import { Interview } from "../models/interview.model";
+import { Question } from "../models/question.model";
+import { QuestionCategory } from "../models/questionCategory.model";
+
+export class InterviewService {
+   /**
+    * Get all interviews for a specific user
+    */
+   public static async getInterviewsByUser(userId: string) {
+      return await Interview.findAll({
+         where: { userId },
+         include: [
+            {
+               model: Question,
+               as: "question",
+               include: [
+                  {
+                     model: QuestionCategory,
+                     as: "category",
+                  },
+               ],
+            },
+         ],
+         order: [["createdAt", "DESC"]],
+      });
+   }
+
+   /**
+    * Get a specific interview by ID for a user
+    */
+   public static async getInterviewById(id: string, userId: string) {
+      const interview = await Interview.findOne({
+         where: { id, userId },
+         include: [
+            {
+               model: Question,
+               as: "question",
+            },
+         ],
+      });
+      if (!interview) throw new Error("Interview not found");
+      return interview;
+   }
+
+   /**
+    * Start a new interview session
+    */
+   public static async startInterview(userId: string, questionId: string) {
+      const question = await Question.findByPk(questionId);
+      if (!question) {
+         throw new Error("Question not found");
+      }
+
+      return await Interview.create({
+         userId,
+         questionId,
+         code: question.starter_code || "",
+         status: "ongoing",
+         score: null,
+      });
+   }
+
+   /**
+    * Submit an interview session
+    */
+   public static async submitInterview(id: string, userId: string, code: string | undefined) {
+      const interview = await Interview.findOne({ where: { id, userId } });
+
+      if (!interview) {
+         throw new Error("Interview not found");
+      }
+
+      if (interview.status !== "ongoing") {
+         throw new Error("Interview is already completed or abandoned");
+      }
+
+      // Simple mock logic for score
+      // In a real application, this would run tests against the code
+      const mockScore = Math.floor(Math.random() * 41) + 60; // Random score between 60 and 100
+
+      await interview.update({
+         code: code || interview.code,
+         score: mockScore,
+         status: "completed",
+      });
+
+      return interview;
+   }
+
+   /**
+    * Abandon an interview session
+    */
+   public static async abandonInterview(id: string, userId: string) {
+      const interview = await Interview.findOne({ where: { id, userId } });
+
+      if (!interview) {
+         throw new Error("Interview not found");
+      }
+
+      if (interview.status !== "ongoing") {
+         throw new Error("Interview is already completed or abandoned");
+      }
+
+      await interview.update({
+         status: "abandoned",
+      });
+
+      return interview;
+   }
+}
+
+export default InterviewService;

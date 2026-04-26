@@ -14,7 +14,7 @@ import mainRoute from "./app/routes";
 import path from "path";
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:8080";
 
 /* ─── CORS ───────────────────────────────────────────── */
