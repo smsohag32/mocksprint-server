@@ -1,6 +1,7 @@
 import { Interview } from "../models/interview.model";
 import { Question } from "../models/question.model";
 import { QuestionCategory } from "../models/questionCategory.model";
+import { AiService } from "./ai.service";
 
 export class InterviewService {
    /**
@@ -74,17 +75,21 @@ export class InterviewService {
          throw new Error("Interview is already completed or abandoned");
       }
 
-      // Simple mock logic for score
-      // In a real application, this would run tests against the code
-      const mockScore = Math.floor(Math.random() * 41) + 60; // Random score between 60 and 100
+      // Use AI for evaluation
+      const question = await Question.findByPk(interview.questionId);
+      const evaluation = await AiService.evaluateSolution(question, code || interview.code || "");
 
       await interview.update({
          code: code || interview.code,
-         score: mockScore,
+         score: evaluation.score,
+         feedback: evaluation.feedback,
          status: "completed",
       });
 
-      return interview;
+      return {
+         ...interview.get(),
+         interviewerMessage: evaluation.interviewerMessage
+      };
    }
 
    /**
@@ -106,6 +111,27 @@ export class InterviewService {
       });
 
       return interview;
+   }
+
+   /**
+    * Generate a hint for an ongoing interview
+    */
+   public static async generateHint(id: string, userId: string, currentCode: string) {
+      const interview = await Interview.findOne({ 
+         where: { id, userId },
+         include: [{ model: Question, as: "question" }]
+      });
+
+      if (!interview) {
+         throw new Error("Interview not found");
+      }
+
+      if (interview.status !== "ongoing") {
+         throw new Error("Cannot get a hint for a completed interview");
+      }
+
+      const hint = await AiService.generateHint(interview.question, currentCode);
+      return { hint };
    }
 }
 

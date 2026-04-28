@@ -121,3 +121,27 @@ export const abandonInterview = async (req: Request, res: Response) => {
       res.status(500).json({ message: "Internal server error" });
    }
 };
+
+/**
+ * Get an AI-generated hint for the interview
+ */
+export const getHint = async (req: Request, res: Response) => {
+   try {
+      const { id } = req.params;
+      const { code } = req.body;
+      const userId = req.user?.user_id;
+
+      if (!userId) {
+         return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const result = await InterviewService.generateHint(id, userId, code);
+      res.status(200).json(result);
+   } catch (error: any) {
+      console.error("Error generating hint:", error);
+      if (error.message === "Interview not found") {
+         return res.status(404).json({ message: error.message });
+      }
+      res.status(500).json({ message: "Internal server error" });
+   }
+};
