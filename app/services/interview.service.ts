@@ -130,8 +130,15 @@ export class InterviewService {
          throw new Error("Cannot get a hint for a completed interview");
       }
 
-      const hint = await AiService.generateHint(interview.question, currentCode);
-      return { hint };
+      try {
+         const hint = await AiService.generateHint(interview.question, currentCode);
+         return { hint };
+      } catch (error: any) {
+         return { 
+            hint: null, 
+            error: error.message || "Failed to generate hint" 
+         };
+      }
    }
 }
 

@@ -15,7 +15,7 @@ export const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
    host: DB_HOST,
    port: Number(DB_PORT),
    dialect: "mysql",
-   logging: false, // set to console.log to debug SQL
+   logging: console.log, // Enabled logging to see the SQL commands
    pool: {
       max: 10,
       min: 0,
@@ -33,8 +33,11 @@ export const connectDb = async (): Promise<void> => {
       await sequelize.authenticate();
       console.log("✅ MySQL database connected successfully.");
 
-      // Sync all models: alter=true updates columns without dropping data
-      await sequelize.sync({ alter: true });
+      // Sync all models: alter:true can sometimes cause "Too many keys" error in MySQL 
+      // if it tries to recreate existing indexes repeatedly.
+      // We'll use default sync() for now. If you need to update the schema, 
+      // use { force: true } (WIPES DATA) or manually clean up the table indexes.
+      await sequelize.sync();
       console.log("✅ All models synced to MySQL.");
    } catch (error: any) {
       console.error("❌ Unable to connect to MySQL:", error.message);

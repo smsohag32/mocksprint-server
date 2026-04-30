@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const GEMINI_MODEL = "gemini-1.5-flash";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "PLACEHOLDER_KEY");
 
 export class AiService {
@@ -14,13 +15,13 @@ export class AiService {
       if (!apiKey || apiKey === "") {
          return {
             score: Math.floor(Math.random() * 30) + 60,
-            feedback: null,
-            interviewerMessage: null
+            feedback: "AI Evaluation skipped (API Key missing).",
+            interviewerMessage: "Great effort! (Simulation)"
          };
       }
 
       try {
-         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+         const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
          const prompt = `
             You are an expert technical interviewer. Evaluate the following coding solution.
@@ -46,20 +47,23 @@ export class AiService {
          const response = await result.response;
          const text = response.text();
          
-         // Extract JSON from response (sometimes Gemini wraps it in code blocks)
          const jsonMatch = text.match(/\{[\s\S]*\}/);
          if (jsonMatch) {
             return JSON.parse(jsonMatch[0]);
          }
          
          throw new Error("Failed to parse AI response");
-      } catch (error) {
+      } catch (error: any) {
          console.error("AI Evaluation Error:", error);
-         // Return minimal info if AI fails
+         
+         const isQuotaError = error.message?.includes("429") || error.message?.includes("quota");
+         
          return {
             score: Math.floor(Math.random() * 30) + 60,
-            feedback: null,
-            interviewerMessage: null
+            feedback: isQuotaError 
+               ? "AI Evaluation unavailable (Quota exceeded). Please try again later." 
+               : "AI Evaluation failed. Please check your connection.",
+            interviewerMessage: "Evaluation failed, but keep going!"
          };
       }
    }
@@ -69,10 +73,10 @@ export class AiService {
     */
    public static async generateHint(question: any, currentCode: string) {
       const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey || apiKey === "") return null;
+      if (!apiKey || apiKey === "") return "AI Hint service is currently unavailable (API Key missing).";
 
       try {
-         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+         const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
          const prompt = `
             A candidate is solving a coding problem and needs a hint.
@@ -92,9 +96,14 @@ export class AiService {
          const result = await model.generateContent(prompt);
          const response = await result.response;
          return response.text().trim();
-      } catch (error) {
+      } catch (error: any) {
          console.error("AI Hint Error:", error);
-         return null;
+         
+         if (error.message?.includes("429") || error.message?.includes("quota")) {
+            throw new Error("AI Quota exceeded. Please try again later.");
+         }
+         
+         throw new Error("Failed to generate AI hint. Please try again.");
       }
    }
 }
