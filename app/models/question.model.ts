@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/dbConfig";
+import { QuestionCategory } from "./questionCategory.model";
 
 /* ─── Attribute Interfaces ───────────────────────────── */
 export interface QuestionAttributes {
@@ -36,6 +37,9 @@ export class Question
    declare is_active: boolean;
    declare readonly createdAt: Date;
    declare readonly updatedAt: Date;
+
+   // Association
+   declare category?: QuestionCategory;
 }
 
 /* ─── Schema Definition ──────────────────────────────── */

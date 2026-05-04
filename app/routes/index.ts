@@ -3,6 +3,7 @@ import authRoute from "./auth.routes";
 import adminRoutes from "./admin.routes";
 import questionRoutes from "./question.routes";
 import interviewRoutes from "./interview.routes";
+import dashboardRoutes from "./dashboard.routes";
 
 const mainRoute = express.Router();
 
@@ -17,5 +18,8 @@ mainRoute.use("/questions", questionRoutes);
 
 // Interview endpoints
 mainRoute.use("/interviews", interviewRoutes);
+
+// Dashboard endpoints
+mainRoute.use("/dashboard", dashboardRoutes);
 
 export default mainRoute;
