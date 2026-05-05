@@ -26,6 +26,12 @@ router.patch("/users/:id/status", authMiddleware, adminMiddleware, AdminControll
 router.delete("/users/:id", authMiddleware, adminMiddleware, AdminController.deleteUser);
 
 /**
+ * Admin Interview Management Routes
+ */
+// Get all interviews
+router.get("/interviews", authMiddleware, adminMiddleware, AdminController.getInterviews);
+
+/**
  * Question Category Management Routes
  */
 

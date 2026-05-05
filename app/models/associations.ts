@@ -3,6 +3,7 @@ import Profile from "./profile.model";
 import Question from "./question.model";
 import QuestionCategory from "./questionCategory.model";
 import Interview from "./interview.model";
+import Blog from "./blog.model";
 
 /**
  * Define all Sequelize model associations here.
@@ -56,5 +57,18 @@ export function defineAssociations(): void {
    Interview.belongsTo(Question, {
       foreignKey: "questionId",
       as: "question",
+   });
+
+   // A User has many Blogs
+   User.hasMany(Blog, {
+      foreignKey: "authorId",
+      as: "blogs",
+      onDelete: "CASCADE",
+   });
+
+   // A Blog belongs to a User (author)
+   Blog.belongsTo(User, {
+      foreignKey: "authorId",
+      as: "author",
    });
 }

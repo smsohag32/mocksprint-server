@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import ManageUserService from "../services/manageUser.service";
+import InterviewService from "../services/interview.service";
 
 export class AdminController {
    /**
@@ -33,6 +34,36 @@ export class AdminController {
          res.status(500).json({
             success: false,
             message: error.message || "Failed to fetch users.",
+            httpStatusCode: 500,
+         });
+      }
+   }
+
+   /**
+    * GET /api/v1/admin/interviews
+    * Fetch paginated list of all interviews.
+    */
+   public static async getInterviews(req: Request, res: Response): Promise<void> {
+      try {
+         const page = Number(req.query.page) || 1;
+         const limit = Number(req.query.limit) || 10;
+
+         const { interviews, total } = await InterviewService.getAllInterviewsPaged({
+            page,
+            limit,
+         });
+
+         res.status(200).json({
+            success: true,
+            message: "Interviews retrieved successfully.",
+            interviews,
+            total,
+            httpStatusCode: 200,
+         });
+      } catch (error: any) {
+         res.status(500).json({
+            success: false,
+            message: error.message || "Failed to fetch interviews.",
             httpStatusCode: 500,
          });
       }

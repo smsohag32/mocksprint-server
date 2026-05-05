@@ -1,6 +1,7 @@
 import { Interview } from "../models/interview.model";
 import { Question } from "../models/question.model";
 import { QuestionCategory } from "../models/questionCategory.model";
+import { User } from "../models/user.model";
 import { AiService } from "./ai.service";
 
 export class InterviewService {
@@ -24,6 +25,33 @@ export class InterviewService {
          ],
          order: [["createdAt", "DESC"]],
       });
+   }
+
+   /**
+    * Get all interviews paginated (Admin)
+    */
+   public static async getAllInterviewsPaged({ page, limit }: { page: number; limit: number }) {
+      const offset = (page - 1) * limit;
+
+      const { count, rows } = await Interview.findAndCountAll({
+         limit,
+         offset,
+         include: [
+            {
+               model: User,
+               as: "user",
+               attributes: ["id", "name", "email"],
+            },
+            {
+               model: Question,
+               as: "question",
+               attributes: ["id", "title"],
+            },
+         ],
+         order: [["createdAt", "DESC"]],
+      });
+
+      return { interviews: rows, total: count };
    }
 
    /**

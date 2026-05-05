@@ -4,6 +4,7 @@ import adminRoutes from "./admin.routes";
 import questionRoutes from "./question.routes";
 import interviewRoutes from "./interview.routes";
 import dashboardRoutes from "./dashboard.routes";
+import blogRoutes from "./blog.routes";
 
 const mainRoute = express.Router();
 
@@ -21,5 +22,8 @@ mainRoute.use("/interviews", interviewRoutes);
 
 // Dashboard endpoints
 mainRoute.use("/dashboard", dashboardRoutes);
+
+// Blog endpoints
+mainRoute.use("/blogs", blogRoutes);
 
 export default mainRoute;
