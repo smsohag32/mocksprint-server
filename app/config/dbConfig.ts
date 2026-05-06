@@ -6,9 +6,9 @@ dotenv.config();
 const {
    DB_HOST = "localhost",
    // DB_PORT = "3306",
-   DB_USER = "root",
-   DB_PASSWORD = "",
-   DB_NAME = "mocksprint_db",
+   DB_USER = "uniqxcxt_envantory_dbuser",
+   DB_PASSWORD = "5n=POBio[XF@",
+   DB_NAME = "uniqxcxt_mocksprint_db",
 } = process.env;
 
 export const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
