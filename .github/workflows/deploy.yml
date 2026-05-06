@@ -1,0 +1,47 @@
+name: Deploy Minified Node JS Backend (Namecheap)
+
+on:
+   push:
+      branches:
+         - main # Change this to your deployment branch (e.g., development)
+
+jobs:
+   build_and_deploy:
+      runs-on: ubuntu-latest
+
+      steps:
+         - name: Checkout repository
+           uses: actions/checkout@v3
+
+         - name: Install Node.js
+           uses: actions/setup-node@v3
+           with:
+              node-version: "20"
+
+         - name: Install dependencies
+           run: npm install --force
+
+         - name: Build & Minify with ncc
+           run: |
+              npm install -g @vercel/ncc
+              # We build app.ts into a single index.js
+              # External modules like bcrypt and database drivers are excluded to avoid binary issues
+              ncc build app.ts -o dist -m -e bcrypt -e sequelize -e mysql2 -e mongoose -e mongodb
+
+         - name: Copy additional files to dist
+           run: |
+              cp package.json dist/
+              cp .htaccess dist/ 2>/dev/null || :
+
+         - name: 📂 Sync files to Namecheap via FTP
+           uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+           with:
+              server: ${{ secrets.FTP_SERVER }}
+              username: ${{ secrets.FTP_USERNAME }}
+              password: ${{ secrets.FTP_PASSWORD }}
+              protocol: ftp
+              local-dir: ./dist/
+              # This should be the path to your Node.js app folder in cPanel
+    
+              # Ensure rm: false to keep your 'uploads' folder safe
+              delete-removed: false
