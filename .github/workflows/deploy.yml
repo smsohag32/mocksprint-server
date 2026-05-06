@@ -3,7 +3,11 @@ name: Deploy Minified Node JS Backend (Namecheap)
 on:
    push:
       branches:
-         - main # Change this to your deployment branch (e.g., development)
+         - main
+
+env:
+   # Opt-in to Node 24 as required by the deprecation warning
+   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
    build_and_deploy:
@@ -11,12 +15,12 @@ jobs:
 
       steps:
          - name: Checkout repository
-           uses: actions/checkout@v3
+           uses: actions/checkout@v4 # Updated to v4
 
          - name: Install Node.js
-           uses: actions/setup-node@v3
+           uses: actions/setup-node@v4 # Updated to v4
            with:
-              node-version: "20"
+              node-version: "22" # Updated to Node 22 (or 24)
 
          - name: Install dependencies
            run: npm install --force
@@ -24,8 +28,7 @@ jobs:
          - name: Build & Minify with ncc
            run: |
               npm install -g @vercel/ncc
-              # We build app.ts into a single index.js
-              # External modules like bcrypt and database drivers are excluded to avoid binary issues
+              # Minify into index.js
               ncc build app.ts -o dist -m -e bcrypt -e sequelize -e mysql2 -e mongoose -e mongodb
 
          - name: Copy additional files to dist
@@ -41,7 +44,4 @@ jobs:
               password: ${{ secrets.FTP_PASSWORD }}
               protocol: ftp
               local-dir: ./dist/
-              # This should be the path to your Node.js app folder in cPanel
-    
-              # Ensure rm: false to keep your 'uploads' folder safe
               delete-removed: false
