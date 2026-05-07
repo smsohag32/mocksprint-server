@@ -28,6 +28,7 @@ jobs:
          - name: Build & Minify with ncc
            run: |
               npm install -g @vercel/ncc
+              rm -rf dist
               # Minify into app.js
               ncc build app.ts -o dist -m -e bcrypt -e mysql2 -e playwright
               mv dist/index.js dist/app.js
