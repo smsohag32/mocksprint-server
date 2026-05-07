@@ -28,13 +28,18 @@ jobs:
          - name: Build & Minify with ncc
            run: |
               npm install -g @vercel/ncc
-              # Minify into index.js
-              ncc build app.ts -o dist -m -e bcrypt -e sequelize -e mysql2 -e mongoose -e mongodb
+              # Minify into app.js
+              ncc build app.ts -o dist -m -e bcrypt -e mysql2 -e playwright
+              mv dist/index.js dist/app.js
 
          - name: Copy additional files to dist
            run: |
               cp package.json dist/
-              cp .htaccess dist/ 2>/dev/null || :
+              [ -f .htaccess ] && cp .htaccess dist/ || echo "No .htaccess found"
+              [ -f .env.example ] && cp .env.example dist/.env.example || echo "No .env.example found"
+
+         - name: 🔍 Verify build output
+           run: ls -la dist/
 
          - name: 📂 Sync files to Namecheap via FTP
            uses: SamKirkland/FTP-Deploy-Action@v4.3.4
