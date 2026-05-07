@@ -3,7 +3,7 @@ name: Deploy Minified Node JS Backend (Namecheap)
 on:
    push:
       branches:
-         - main
+         - deployment
 
 env:
    # Opt-in to Node 24 as required by the deprecation warning
