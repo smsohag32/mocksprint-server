@@ -15,12 +15,12 @@ jobs:
 
       steps:
          - name: Checkout repository
-           uses: actions/checkout@v4 # Updated to v4
+           uses: actions/checkout@v4
 
          - name: Install Node.js
-           uses: actions/setup-node@v4 # Updated to v4
+           uses: actions/setup-node@v4
            with:
-              node-version: "22" # Updated to Node 22 (or 24)
+              node-version: "22"
 
          - name: Install dependencies
            run: npm install --force
@@ -29,7 +29,6 @@ jobs:
            run: |
               npm install -g @vercel/ncc
               rm -rf dist
-              # Minify into app.js
               ncc build app.ts -o dist -m -e bcrypt -e mysql2 -e playwright
               mv dist/index.js dist/app.js
 
@@ -56,3 +55,4 @@ jobs:
                  **/.git*
                  **/.git*/**
                  **/node_modules/**
+                 **/uploads/**
