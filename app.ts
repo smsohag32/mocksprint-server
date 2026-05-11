@@ -41,18 +41,6 @@ app.get("/", (_req, res) => {
    });
 });
 
-/* ─── API Routes ─────────────────────────────────────── */
-app.use("/api/v1", mainRoute);
-
-/* ─── 404 Handler ────────────────────────────────────── */
-app.use((_req, res) => {
-   res.status(404).json({
-      success: false,
-      message: "Route not found.",
-      httpStatusCode: 404,
-   });
-});
-
 /* ─── Start Server ───────────────────────────────────── */
 connectDb().then(async () => {
    // Register all model associations before any queries run
@@ -64,8 +52,18 @@ connectDb().then(async () => {
    // Seed initial professional questions
    await seedQuestions();
 
-   app.listen(port, () => {
-      console.log(`🚀 Server running on http://localhost:${port}`);
+   app.listen();
+});
+
+/* ─── API Routes ─────────────────────────────────────── */
+app.use("/api/v1", mainRoute);
+
+/* ─── 404 Handler ────────────────────────────────────── */
+app.use((_req, res) => {
+   res.status(404).json({
+      success: false,
+      message: "Route not found.",
+      httpStatusCode: 404,
    });
 });
 

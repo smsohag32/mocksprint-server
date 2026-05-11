@@ -3,27 +3,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const {
-   DB_HOST = "localhost",
-   // DB_PORT = "3306",
-   DB_USER = "uniqxcxt_envantory_dbuser",
-   DB_PASSWORD = "5n=POBio[XF@",
-   DB_NAME = "uniqxcxt_mocksprint_db",
-} = process.env;
+const { DB_HOST = "localhost", DB_USER, DB_PASSWORD, DB_NAME } = process.env;
 
 export const sequelize = new Sequelize(
-   // DB_NAME,
-   "uniqxcxt_mocksprint_db",
-   "uniqxcxt_envantory_dbuser",
-   // DB_USER,
-   "5n=POBio[XF@",
-   // DB_PASSWORD,
+   DB_NAME as string,
+   DB_USER as string,
+   DB_PASSWORD as string,
    {
-      // host: DB_HOST,
-      host: "localhost",
-      // port: Number(DB_PORT),
+      host: DB_HOST,
       dialect: "mysql",
-      logging: console.log,
+      logging: false,
       pool: {
          max: 10,
          min: 0,
@@ -42,10 +31,7 @@ export const connectDb = async (): Promise<void> => {
       await sequelize.authenticate();
       console.log("✅ MySQL database connected successfully.");
 
-      // Sync all models: alter:true can sometimes cause "Too many keys" error in MySQL
-      // if it tries to recreate existing indexes repeatedly.
-      // We'll use default sync() for now. If you need to update the schema,
-      // use { force: true } (WIPES DATA) or manually clean up the table indexes.
+      // Sync all models
       await sequelize.sync();
       console.log("✅ All models synced to MySQL.");
    } catch (error: any) {
