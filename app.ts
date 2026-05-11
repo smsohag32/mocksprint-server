@@ -52,7 +52,9 @@ connectDb().then(async () => {
    // Seed initial professional questions
    await seedQuestions();
 
-   app.listen();
+   app.listen(port, () => {
+      console.log(`🚀 Server running on http://localhost:${port}`);
+   });
 });
 
 /* ─── API Routes ─────────────────────────────────────── */
