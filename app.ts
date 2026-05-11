@@ -19,7 +19,13 @@ const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:8080";
 
 /* ─── CORS ───────────────────────────────────────────── */
 const corsOptions = {
-   origin: [CLIENT_URL, "http://localhost:5173", "http://localhost:8080"],
+   origin: [
+      CLIENT_URL,
+      "https://mocksprint.sgedgetech.com",
+      "https://www.mocksprint.sgedgetech.com",
+      "mocksprint.sgedgetech.com",
+      "http://localhost:8080",
+   ],
    credentials: true,
    optionsSuccessStatus: 200,
 };
