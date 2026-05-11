@@ -274,13 +274,41 @@ export class AuthService {
       new_password: string
    ): Promise<{ message: string }> {
       const user = await User.findOne({ where: { email } });
-      if (!user) throw new Error("No account found with this email.");
+      if (!user) {
+         throw new Error("No account found with this email.");
+      }
 
       // beforeUpdate hook will hash the new password
       await user.update({ password: new_password });
       delete otpStorage[email];
 
       return { message: "Password reset successfully. You can now log in." };
+   }
+
+   // ─── Resend Verification Email ──────────────────────
+   public static async resendVerification(email: string): Promise<{ message: string }> {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+         throw new Error("No account found with this email.");
+      }
+
+      if (user.is_verified) {
+         throw new Error("This account is already verified. Please log in.");
+      }
+
+      // Generate new verification token (UUID) valid for 24 hours
+      const verificationToken = crypto.randomUUID();
+      const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      await user.update({
+         email_verification_token: verificationToken,
+         email_verification_expires: verificationExpires,
+      });
+
+      // Send verification email
+      await sendVerificationEmail(email, verificationToken);
+
+      return { message: "Verification link resent! Please check your inbox." };
    }
 }
 

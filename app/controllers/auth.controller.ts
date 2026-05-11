@@ -198,6 +198,21 @@ export class AuthController {
          res.status(400).json({ success: false, message: error.message || "Password reset failed.", httpStatusCode: 400 });
       }
    }
+
+   // ─── Resend Verification Email ──────────────────────
+   public static async resendVerification(req: Request, res: Response): Promise<void> {
+      const { email } = req.body;
+      try {
+         const result = await AuthService.resendVerification(email);
+         res.status(200).json({ success: true, message: result.message, httpStatusCode: 200 });
+      } catch (error: any) {
+         res.status(400).json({
+            success: false,
+            message: error.message || "Failed to resend verification link.",
+            httpStatusCode: 400,
+         });
+      }
+   }
 }
 
 export default AuthController;

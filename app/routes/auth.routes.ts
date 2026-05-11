@@ -14,6 +14,7 @@ authRoute.post("/auth/sign-in", AuthController.signIn);
 
 // Email verification (link from email)
 authRoute.get("/auth/verify-email", AuthController.verifyEmail);
+authRoute.post("/auth/resend-verification", AuthController.resendVerification);
 
 // Token refresh
 authRoute.post("/auth/refresh", AuthController.refreshToken);
