@@ -4,7 +4,7 @@ dotenv.config();
 
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
-const CLIENT_URL = process.env.CLIENT_URL || "https://mocksprint.sgedgetech.com";
+const CLIENT_URL = "https://mocksprint.sgedgetech.com";
 
 /* ─── Transporter ────────────────────────────────────── */
 export const createTransporter = () => {
