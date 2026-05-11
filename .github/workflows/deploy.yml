@@ -50,4 +50,9 @@ jobs:
               password: ${{ secrets.FTP_PASSWORD }}
               protocol: ftps
               local-dir: ./dist/
-              delete-removed: false
+              state-name: .ftp-deploy-sync-state-fresh.json
+              delete-removed: true
+              exclude: |
+                 **/.git*
+                 **/.git*/**
+                 **/node_modules/**
