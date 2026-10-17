@@ -82,6 +82,10 @@ export const submitInterview = async (req: Request, res: Response) => {
          return res.status(401).json({ message: "Unauthorized" });
       }
 
+      if (code && typeof code === "string" && code.length > 60000) {
+         return res.status(400).json({ message: "Submitted code exceeds maximum size limit (60KB)" });
+      }
+
       const interview = await InterviewService.submitInterview(id, userId, code);
       res.status(200).json(interview);
    } catch (error: any) {

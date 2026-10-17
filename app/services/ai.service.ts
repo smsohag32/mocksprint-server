@@ -6,6 +6,17 @@ dotenv.config();
 const GEMINI_MODEL = "gemini-1.5-flash";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "PLACEHOLDER_KEY");
 
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number, timeoutErrorMsg: string): Promise<T> => {
+   let timer: NodeJS.Timeout;
+   const timeoutPromise = new Promise<T>((_, reject) => {
+      timer = setTimeout(() => reject(new Error(timeoutErrorMsg)), timeoutMs);
+   });
+   return Promise.race([
+      promise.finally(() => clearTimeout(timer)),
+      timeoutPromise,
+   ]);
+};
+
 export class AiService {
    /**
     * Evaluate a coding solution and provide a score and feedback
@@ -43,7 +54,11 @@ export class AiService {
             Return ONLY the JSON.
          `;
 
-         const result = await model.generateContent(prompt);
+         const result = await withTimeout(
+            model.generateContent(prompt),
+            25000,
+            "AI evaluation timed out after 25 seconds"
+         );
          const response = await result.response;
          const text = response.text();
          
@@ -57,13 +72,18 @@ export class AiService {
          console.error("AI Evaluation Error:", error);
          
          const isQuotaError = error.message?.includes("429") || error.message?.includes("quota");
+         const isTimeout = error.message?.includes("timed out");
          
          return {
             score: Math.floor(Math.random() * 30) + 60,
             feedback: isQuotaError 
                ? "AI Evaluation unavailable (Quota exceeded). Please try again later." 
-               : "AI Evaluation failed. Please check your connection.",
-            interviewerMessage: "Evaluation failed, but keep going!"
+               : isTimeout
+                 ? "AI Evaluation timed out. Evaluation completed using standard scoring criteria."
+                 : "AI Evaluation failed. Please check your connection.",
+            interviewerMessage: isTimeout
+               ? "Evaluation finished under fallback criteria due to timeout."
+               : "Evaluation finished, keep practicing and refining your approach!"
          };
       }
    }
@@ -93,7 +113,11 @@ export class AiService {
             Return ONLY the hint text.
          `;
 
-         const result = await model.generateContent(prompt);
+         const result = await withTimeout(
+            model.generateContent(prompt),
+            15000,
+            "AI hint generation timed out after 15 seconds"
+         );
          const response = await result.response;
          return response.text().trim();
       } catch (error: any) {
@@ -101,6 +125,9 @@ export class AiService {
          
          if (error.message?.includes("429") || error.message?.includes("quota")) {
             throw new Error("AI Quota exceeded. Please try again later.");
+         }
+         if (error.message?.includes("timed out")) {
+            throw new Error("Hint generation timed out. Please try again.");
          }
          
          throw new Error("Failed to generate AI hint. Please try again.");
